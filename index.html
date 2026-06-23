@@ -1343,7 +1343,7 @@ let diversaoClicks=0,skinsBought=0;
 const owned=new Set();
 const PREQ=()=>1000000*Math.pow(8,prestigeCount);
 const gm=()=>globalMult*(tempMult>1&&Date.now()<tempMultExp?tempMult:1);
-const fmt=n=>{if(n>=1e15)return(n/1e15).toFixed(2)+'Qa';if(n>=1e12)return(n/1e12).toFixed(2)+'T';if(n>=1e9)return(n/1e9).toFixed(2)+'B';if(n>=1e6)return(n/1e6).toFixed(2)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return Math.floor(n).toString();};
+const fmt=n=>{if(n>=1e21)return(n/1e21).toFixed(2)+'Sx';if(n>=1e18)return(n/1e18).toFixed(2)+'Qi';if(n>=1e15)return(n/1e15).toFixed(2)+'Qa';if(n>=1e12)return(n/1e12).toFixed(2)+'T';if(n>=1e9)return(n/1e9).toFixed(2)+'B';if(n>=1e6)return(n/1e6).toFixed(2)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return Math.floor(n).toString();};
 
 // ══════════════════════════════════════════════════════
 // TABS — SINGLE CLEAN FUNCTION
@@ -2073,7 +2073,7 @@ async function loadGlobalTop10(){
       const isMe=playerName&&d.nome===playerName;
       html+=`<div style="display:flex;align-items:center;gap:.5rem;background:${isMe?'#221a00':'#0a0a18'};border:1px solid ${isMe?'#ff8800':'#223344'};border-radius:10px;padding:.4rem .6rem;margin-bottom:.3rem;">
         <span style="font-size:.8rem;width:22px;text-align:center;">${medals[pos]||(pos+1)+'º'}</span>
-        <span style="flex:1;font-family:'Nunito',sans-serif;font-size:.72rem;color:${isMe?'#ffaa00':'#88aacc'};">${d.nome||'???'}${isMe?' (você)':''}</span>
+        <span style="flex:1;font-family:'Nunito',sans-serif;font-size:.72rem;color:${isMe?'#ffaa00':'#88aacc'};">${d.proWon?'🏆 ':''}${d.nome||'???'}${isMe?' (você)':''}</span>
         <span style="font-family:'Nunito',sans-serif;font-size:.68rem;color:#ffdd00;">${fmt(d.score||0)}</span>
       </div>`;
       pos++;
@@ -2924,10 +2924,174 @@ function checkProMode(){
     updateUI();checkMS();checkPrestige();updateProUI();
   }
 }
+
+// ══════════════════════════════════════════════════════
+// 🌌 FINAL DO JOGO — chegar a 999 quadrilhões de pontos
+// é o final de verdade do Clicker Master Jojo. Mostra a
+// tela de vitória com créditos. Depois disso o jogo
+// continua liberado (ninguém te impede de seguir jogando).
+// ══════════════════════════════════════════════════════
+const WIN_GOAL=1e21; // 1 sextilhão
+let gameWon=localStorage.getItem('cmGameWon')==='1';
+
+function checkGameWin(){
+  if(gameWon)return;
+  if(!isFinite(score))return;
+  if(score>=WIN_GOAL)triggerGameWin();
+}
+function debugShowScore(){
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:3500;background:#000000ee;display:flex;align-items:center;justify-content:center;';
+  ov.innerHTML=`<div style="background:#111;border:3px solid #00ffaa;border-radius:16px;padding:1.2rem;text-align:center;max-width:340px;width:90%;font-family:'Nunito',sans-serif;">
+    <div style="color:#00ffaa;font-size:.8rem;margin-bottom:.6rem;">🔍 DEBUG DO SCORE</div>
+    <div style="color:#fff;font-size:.65rem;line-height:1.8;text-align:left;word-break:break-all;">
+      score (valor real): <strong style="color:#ffdd00;">${score}</strong><br>
+      score (formatado): <strong style="color:#ffdd00;">${fmt(score)}</strong><br>
+      WIN_GOAL: <strong style="color:#ff8888;">${WIN_GOAL}</strong><br>
+      score >= WIN_GOAL? <strong style="color:${score>=WIN_GOAL?'#00ff88':'#ff4444'};">${score>=WIN_GOAL}</strong><br>
+      isFinite(score)? <strong style="color:${isFinite(score)?'#00ff88':'#ff4444'};">${isFinite(score)}</strong><br>
+      gameWon: <strong>${gameWon}</strong>
+    </div>
+    <button onclick="this.parentElement.parentElement.remove()" style="margin-top:.8rem;font-family:'Nunito',sans-serif;font-size:.7rem;padding:.4rem 1rem;background:#00ffaa;color:#000;border:none;border-radius:8px;cursor:pointer;">FECHAR</button>
+  </div>`;
+  document.body.appendChild(ov);
+}
+function triggerGameWin(){
+  if(gameWon)return;
+  gameWon=true;localStorage.setItem('cmGameWon','1');
+  try{
+    prestigeStars+=50;globalMult*=2;
+    SKINS.forEach(s=>ownedSkins.add(s.id));
+    updateUI();checkMS();checkPrestige();
+  }catch(e){console.error('Erro ao dar recompensa do Final do Jogo:',e);}
+  try{renderSkins();}catch(e){}
+  try{sfx('conquest');}catch(e){}
+  try{admConfetti();}catch(e){}
+  showVictoryScreen();
+}
+function showVictoryScreen(){
+  try{
+    document.getElementById('victoryOv')?.remove(); // remove qualquer tela travada de uma tentativa anterior
+    ensureVictoryStyles();
+    const ov=document.createElement('div');
+    ov.id='victoryOv';
+    ov.style.cssText='position:fixed;inset:0;z-index:3000;background:#000;overflow:hidden;';
+    let stars='';
+    for(let i=0;i<60;i++){
+      stars+=`<div style="position:absolute;left:${Math.random()*100}%;top:${Math.random()*100}%;width:${1+Math.random()*2}px;height:${1+Math.random()*2}px;background:#fff;border-radius:50%;opacity:${.3+Math.random()*.7};"></div>`;
+    }
+    ov.innerHTML=`
+      <div style="position:absolute;inset:0;">${stars}</div>
+      <button onclick="skipToPostCredits()" style="position:fixed;bottom:14px;right:14px;z-index:10;font-family:'Nunito',sans-serif;font-size:.6rem;padding:.4rem .8rem;background:#111;color:#aaa;border:1px solid #444;border-radius:8px;cursor:pointer;">PULAR ⏭️</button>
+      <div id="creditsScroll" style="position:absolute;left:0;right:0;top:100%;text-align:center;color:#ddd;font-family:'Nunito',sans-serif;animation:creditsScrollUp 34s linear forwards;">
+        <div style="font-family:'Black Han Sans',sans-serif;font-size:1.8rem;color:#ffdd00;text-shadow:0 0 24px #ffdd00;margin-bottom:.3rem;">🏆 VOCÊ VENCEU O JOGO 🏆</div>
+        <div style="font-size:.6rem;color:#aaa;margin-bottom:3rem;">chegou a ${fmt(WIN_GOAL)} pontos</div>
+
+        <div style="font-size:1.1rem;letter-spacing:3px;margin-bottom:2.2rem;">CLICKER MASTER JOJO</div>
+
+        <div style="font-size:.6rem;color:#888;letter-spacing:2px;margin-bottom:.3rem;">DIREÇÃO GERAL</div>
+        <div style="font-size:.85rem;color:#fff;margin-bottom:2rem;">Jojo</div>
+
+        <div style="font-size:.6rem;color:#888;letter-spacing:2px;margin-bottom:.3rem;">PRODUÇÃO</div>
+        <div style="font-size:.85rem;color:#fff;margin-bottom:2rem;">Willian</div>
+
+        <div style="font-size:.6rem;color:#888;letter-spacing:2px;margin-bottom:.3rem;">ENGENHARIA DO MODO CAOS</div>
+        <div style="font-size:.85rem;color:#fff;margin-bottom:2rem;">Jojo</div>
+
+        <div style="font-size:.6rem;color:#888;letter-spacing:2px;margin-bottom:.3rem;">TESTES DE ESTRESSE DO BOTÃO</div>
+        <div style="font-size:.85rem;color:#fff;margin-bottom:.2rem;">Milhões de cliques</div>
+        <div style="font-size:.6rem;color:#666;margin-bottom:2rem;">(nenhum botão foi seriamente ferido)</div>
+
+        <div style="font-size:.6rem;color:#888;letter-spacing:2px;margin-bottom:.3rem;">DEPARTAMENTO ANTI-AUTOCLICKER</div>
+        <div style="font-size:.85rem;color:#fff;margin-bottom:2rem;">Equipe de Segurança 🤖🚫</div>
+
+        <div style="font-size:.6rem;color:#888;letter-spacing:2px;margin-bottom:.3rem;">EFEITOS SONOROS E VISUAIS</div>
+        <div style="font-size:.85rem;color:#fff;margin-bottom:2rem;">Confetes, sons e muito caos</div>
+
+        <div style="font-size:.6rem;color:#888;letter-spacing:2px;margin-bottom:.3rem;">PARTICIPAÇÃO ESPECIAL</div>
+        <div style="font-size:.85rem;color:#fff;margin-bottom:2rem;">Você 🎮</div>
+
+        <div style="font-size:.6rem;color:#888;letter-spacing:2px;margin-bottom:.6rem;">AGRADECIMENTOS</div>
+        <div style="font-size:.65rem;color:#ccc;line-height:1.9;max-width:320px;margin:0 auto 3rem;">Obrigado por clicar, comprar upgrade, ativar o Caos,<br>sobreviver ao Modo PRO e chegar até o final!<br><br>💛 Feito com muito carinho.</div>
+
+        <div style="font-size:1.4rem;color:#ffdd00;letter-spacing:4px;margin-bottom:.4rem;">FIM</div>
+        <div style="font-size:.55rem;color:#666;margin-bottom:6rem;">(ou será que não...?)</div>
+      </div>`;
+    document.body.appendChild(ov);
+    victoryTimer=setTimeout(skipToPostCredits,34500);
+  }catch(e){
+    console.error('Erro ao mostrar tela de vitória:',e);
+    toast('🏆 VOCÊ VENCEU O JOGO! (erro ao desenhar a tela, mas a recompensa foi aplicada)','rainbow');
+  }
+}
+function skipToPostCredits(){
+  clearTimeout(victoryTimer);
+  const sc=document.getElementById('creditsScroll');if(sc)sc.style.animation='none';
+  showPostCredits();
+}
+function showPostCredits(){
+  const ov=document.getElementById('victoryOv');if(!ov)return;
+  ov.innerHTML='';
+  let stars='';
+  for(let i=0;i<50;i++){
+    stars+=`<div style="position:absolute;left:${Math.random()*100}%;top:${Math.random()*60}%;width:${1+Math.random()*2}px;height:${1+Math.random()*2}px;background:#fff;border-radius:50%;opacity:${.3+Math.random()*.7};"></div>`;
+  }
+  ov.innerHTML=`
+    <div style="position:absolute;inset:0;background:linear-gradient(to bottom,#000 0%,#000 55%,#0a3d1a 75%,#1a6b2e 100%);">${stars}</div>
+    <div style="position:absolute;left:50%;bottom:6%;transform:translateX(-50%);font-size:4rem;">🌍</div>
+    <div id="fallingBtn" style="position:absolute;left:50%;top:-80px;transform:translateX(-50%);width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#ff8800,#ffdd00);box-shadow:0 0 24px #ffaa0099;display:flex;align-items:center;justify-content:center;font-family:'Nunito',sans-serif;font-size:.6rem;color:#000;font-weight:900;animation:btnFall 2.4s cubic-bezier(.55,0,1,.45) forwards;">CLIQUE!</div>
+    <div id="postCreditsText" style="position:absolute;left:0;right:0;bottom:18%;text-align:center;opacity:0;transition:opacity 1s;font-family:'Nunito',sans-serif;">
+      <div style="font-size:.95rem;color:#ffdd00;letter-spacing:2px;margin-bottom:.4rem;">💥 O BOTÃO CAIU NA TERRA!</div>
+      <div style="font-size:.6rem;color:#ccc;margin-bottom:1.2rem;">Será que alguém vai ter coragem de apertar ele de novo? 😏</div>
+      <button onclick="document.getElementById('victoryOv').remove()" style="font-family:'Nunito',sans-serif;font-size:.8rem;padding:.5rem 1.4rem;background:linear-gradient(135deg,#003322,#00ff88);color:#000;border:none;border-radius:12px;cursor:pointer;letter-spacing:1px;font-weight:900;">🎮 VOLTAR A JOGAR</button>
+    </div>`;
+  sfx('chaos');
+  setTimeout(()=>{
+    const fb=document.getElementById('fallingBtn');if(fb)fb.style.animation='btnBounce .5s ease-out forwards';
+    sfx('milestone');admConfetti();
+  },2400);
+  setTimeout(()=>{
+    const t=document.getElementById('postCreditsText');if(t)t.style.opacity='1';
+  },3000);
+}
+let victoryTimer=null;
+function ensureVictoryStyles(){
+  if(document.getElementById('victoryStyle'))return;
+  const st=document.createElement('style');
+  st.id='victoryStyle';
+  st.textContent=`
+    @keyframes creditsScrollUp{from{top:100%;}to{top:-340%;}}
+    @keyframes btnFall{0%{top:-80px;transform:translateX(-50%) rotate(0deg);}100%{top:78%;transform:translateX(-50%) rotate(900deg);}}
+    @keyframes btnBounce{0%{transform:translateX(-50%) translateY(0);}30%{transform:translateX(-50%) translateY(-22px);}60%{transform:translateX(-50%) translateY(0);}80%{transform:translateX(-50%) translateY(-8px);}100%{transform:translateX(-50%) translateY(0);}}
+  `;
+  document.head.appendChild(st);
+}
 function updateProUI(){
   const s=document.getElementById('proScoreDisp');if(s)s.textContent=fmt(score)+' / '+fmt(PRO_GOAL);
   const bar=document.getElementById('proBar');if(bar)bar.style.width=Math.min(100,score/PRO_GOAL*100)+'%';
   const badge=document.getElementById('proWonBadge');if(badge)badge.style.display=proWon?'block':'none';
+  applyProTrophyVisual();
+}
+function applyProTrophyVisual(){
+  const btn=document.getElementById('bigBtn');if(!btn)return;
+  if(proWon){
+    btn.style.boxShadow='0 0 30px 8px #ffdd0099, 0 0 60px 16px #ff880055, inset 0 0 20px #fff4cc66';
+    btn.style.border='3px solid #ffdd00';
+    if(!document.getElementById('proTrophyTag')){
+      const tag=document.createElement('div');
+      tag.id='proTrophyTag';
+      tag.textContent='🏆';
+      tag.style.cssText='position:absolute;top:-14px;right:-6px;font-size:1.4rem;filter:drop-shadow(0 0 8px #ffdd00);pointer-events:none;animation:trophyFloat 2.4s ease-in-out infinite;z-index:5;';
+      if(btn.style.position!=='absolute'&&btn.style.position!=='fixed')btn.style.position=btn.style.position||'relative';
+      btn.appendChild(tag);
+    }
+  }
+}
+if(!document.getElementById('trophyFloatStyle')){
+  const st=document.createElement('style');
+  st.id='trophyFloatStyle';
+  st.textContent='@keyframes trophyFloat{0%,100%{transform:translateY(0) rotate(-8deg);}50%{transform:translateY(-6px) rotate(8deg);}}';
+  document.head.appendChild(st);
 }
 
 // Hook into buy to track daily buys
@@ -3040,6 +3204,7 @@ function updateUI(){
   document.getElementById('bpc').textContent='+'+fmt(Math.floor(clickPower*m));
   renderStrip();
   checkProMode();
+  checkGameWin();
 }
 function renderStrip(){
   const s=document.getElementById('astrip');s.innerHTML='';
@@ -3258,6 +3423,10 @@ const SECRET_CODES={
   'euroubei1': ()=>previewBanScreen(1),
   'euroubei2': ()=>previewBanScreen(2),
   'euroubei3': ()=>previewBanScreen(3),
+  'resetarpro': ()=>admResetProFlag(),
+  'resetarfim': ()=>admResetGameWinFlag(),
+  'forcarfim': ()=>{gameWon=false;localStorage.removeItem('cmGameWon');triggerGameWin();},
+  'debugfim': ()=>debugShowScore(),
 };
 const MAX_CODE_LEN=Math.max(...Object.keys(SECRET_CODES).map(k=>k.length));
 let kBuffer='';let kTimer=null;
@@ -5687,27 +5856,28 @@ async function renderFriendsList(friends){
   if(!el)return;
   const scored=[];
   for(const f of friends){
-    let scoreVal=0,online=false;
+    let scoreVal=0,online=false,proW=false;
     try{
       const snap=await db.collection('jogadores').where('nome','==',f.nome).get();
       if(!snap.empty){
         const d=snap.docs[0].data();
         scoreVal=d.score||0;
+        proW=!!d.proWon;
         const ts=d.updatedAt?.toMillis?.()??0;
         online=Date.now()-ts<300000;
       }
     }catch(e){}
-    scored.push({nome:f.nome,score:scoreVal,online});
+    scored.push({nome:f.nome,score:scoreVal,online,proW});
   }
   // ranking inclui você também
   if(rk){
-    const all=[...scored,{nome:(playerName||'Você')+' (você)',score,online:true,isMe:true}].sort((a,b)=>b.score-a.score);
+    const all=[...scored,{nome:(playerName||'Você')+' (você)',score,online:true,isMe:true,proW:proWon}].sort((a,b)=>b.score-a.score);
     const medals=['🥇','🥈','🥉'];
     let rhtml='<div style="font-family:\'Nunito\',sans-serif;font-size:.65rem;color:#ffaa00;margin-bottom:.4rem;">🏅 RANKING DE AMIGOS</div>';
     all.forEach((p,i)=>{
       rhtml+=`<div style="display:flex;align-items:center;gap:.5rem;background:${p.isMe?'#221a00':'#0a0a18'};border:1px solid ${p.isMe?'#ff8800':'#223344'};border-radius:8px;padding:.32rem .55rem;margin-bottom:.25rem;">
         <span style="font-size:.7rem;width:20px;text-align:center;">${medals[i]||(i+1)+'º'}</span>
-        <span style="flex:1;font-family:'Nunito',sans-serif;font-size:.68rem;color:${p.isMe?'#ffaa00':'#88ccff'};">${p.nome}</span>
+        <span style="flex:1;font-family:'Nunito',sans-serif;font-size:.68rem;color:${p.isMe?'#ffaa00':'#88ccff'};">${p.proW?'🏆 ':''}${p.nome}</span>
         <span style="font-family:'Nunito',sans-serif;font-size:.62rem;color:#ffdd00;">${fmt(p.score)}</span>
       </div>`;
     });
@@ -6022,6 +6192,7 @@ saveScore=async function(){
       totalCliques:totalClicks,
       prestígios:prestigeCount,
       skinId:activeSkin,
+      proWon:proWon,
       updatedAt:firebase.firestore.FieldValue.serverTimestamp()
     });
     toast('💾 Score salvo! '+fmt(score)+' pts','green');sfx('buy');
@@ -6588,6 +6759,15 @@ function openADMAbuse(){
       </div>
     </div>
 
+    <div style="background:#001a0a;border:2px solid #00ff88;border-radius:14px;padding:.8rem;margin-bottom:.8rem;">
+      <div style="font-family:'Nunito',sans-serif;font-size:.75rem;color:#00ff88;margin-bottom:.5rem;">🔄 RESETAR MARCOS (PRA TESTAR)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem;">
+        <button onclick="admResetProFlag()" style="font-family:'Nunito',sans-serif;font-size:.62rem;padding:.38rem;background:linear-gradient(135deg,#003322,#00ff88);color:#000;border:none;border-radius:8px;cursor:pointer;">🏆 Resetar Modo PRO</button>
+        <button onclick="admResetGameWinFlag()" style="font-family:'Nunito',sans-serif;font-size:.62rem;padding:.38rem;background:linear-gradient(135deg,#332200,#ffdd00);color:#000;border:none;border-radius:8px;cursor:pointer;">🌌 Resetar Final do Jogo</button>
+        <button onclick="gameWon=false;localStorage.removeItem('cmGameWon');triggerGameWin();" style="font-family:'Nunito',sans-serif;font-size:.62rem;padding:.38rem;background:linear-gradient(135deg,#221144,#aa44ff);color:#fff;border:none;border-radius:8px;cursor:pointer;">🎬 FORÇAR Final do Jogo</button>
+      </div>
+    </div>
+
     <button onclick="document.getElementById('abuseOv').remove()" style="width:100%;font-family:'Nunito',sans-serif;font-size:.8rem;padding:.45rem;background:#0a0000;color:#660022;border:2px solid #440011;border-radius:10px;cursor:pointer;">FECHAR 😈</button>
   </div>`;
   ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
@@ -6727,6 +6907,15 @@ function abuseCreateCode(){
   if(list)list.innerHTML+=`<div style="color:#884499;padding:.2rem 0;">✅ "${code}" → ${action}</div>`;
   (function(){var __e=document.getElementById('abuseNewCode');if(__e)__e.value='';})();
   toast('🔑 Código "'+code+'" criado!','rainbow');sfx('milestone');
+}
+function admResetProFlag(){
+  proWon=false;localStorage.removeItem('cmProWon');
+  document.getElementById('proTrophyTag')?.remove();
+  toast('🏆 Flag do Modo PRO resetada! Pode testar de novo.','green');
+  updateProUI();
+}
+function admResetGameWinFlag(){
+  localStorage.removeItem('cmGameWon');location.reload();
 }
 async function abuseNukeRanking(){
   try{
