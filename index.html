@@ -783,6 +783,11 @@ footer{text-align:center;padding:.9rem;font-size:.5rem;color:var(--border);lette
   <button class="pbtn" id="btnPres" onclick="doPrestige()" disabled>⭐ PRESTIGIAR</button>
 </div>
 
+<!-- EVENTOS SAZONAIS -->
+<div id="seasonalBanner" style="display:flex;align-items:center;gap:.4rem;background:#0a0a18;border:2px solid #334455;border-radius:10px;padding:.35rem .6rem;margin:.3rem .6rem 0;font-family:'Nunito',sans-serif;font-size:.62rem;transition:.3s;">
+  <span>⏳</span><span style="flex:1;color:#8899aa;">Carregando eventos...</span>
+</div>
+
 <!-- BOTÃO TECLADO SECRETO -->
 <button id="btnKeyboard" onclick="openAdmKeyboard()" style="position:fixed;right:10px;bottom:70px;z-index:500;background:#110022cc;border:2px solid #330055;border-radius:12px;padding:.4rem .35rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.15rem;box-shadow:0 0 8px #33005544;transition:.2s;opacity:.6;" onmouseover="this.style.opacity='1';this.style.borderColor='#cc00ff'" onmouseout="this.style.opacity='.6';this.style.borderColor='#330055'">
   <span style="font-size:.9rem;">🔑</span>
@@ -873,6 +878,15 @@ footer{text-align:center;padding:.9rem;font-size:.5rem;color:var(--border);lette
     </div>
   </div>
   <div id="rankList"></div>
+
+  <!-- TOP 10 GLOBAL -->
+  <div style="margin-top:1rem;">
+    <div class="stitle" style="color:#ff8800;">🌍 TOP 10 GLOBAL</div>
+    <div style="text-align:center;margin-bottom:.5rem;">
+      <button onclick="loadGlobalTop10()" style="font-family:'Nunito',sans-serif;font-size:.65rem;padding:.35rem .9rem;background:linear-gradient(135deg,#442200,#ff8800);color:#000;border:none;border-radius:10px;cursor:pointer;">🔄 ATUALIZAR RANKING</button>
+    </div>
+    <div id="globalTop10List"><div style="text-align:center;font-size:.5rem;color:#334455;padding:.6rem;">Clique em atualizar pra ver os 10 melhores jogadores!</div></div>
+  </div>
 </div>
 <div class="tpanel" id="tab-div">
   <div class="stitle" style="color:#ff88ff;text-shadow:0 0 12px #ff88ff;">🎉 DIVERSÃO</div>
@@ -921,21 +935,17 @@ footer{text-align:center;padding:.9rem;font-size:.5rem;color:var(--border);lette
 <div class="tpanel" id="tab-pro">
   <div class="stitle" style="color:#00ff88;text-shadow:0 0 12px #00ff88;">🏆 MODO PRO</div>
   <div style="background:#001a0f;border:3px solid #00ff88;border-radius:16px;padding:1rem;text-align:center;margin-bottom:.65rem;">
-    <div id="proWonBadge" style="display:none;font-size:.5rem;color:#ffdd00;letter-spacing:2px;margin-bottom:.4rem;">👑 JÁ CONQUISTADO — passou <span id="proWinsCount">0</span>x</div>
+    <div id="proWonBadge" style="display:none;font-size:.5rem;color:#ffdd00;letter-spacing:2px;margin-bottom:.4rem;">👑 MODO PRO CONQUISTADO!</div>
     <div style="font-size:.55rem;color:#88ffcc;line-height:1.7;margin-bottom:.7rem;">
-      Desafio HARDCORE: zera tudo, sem upgrade, sem multiplicador, sem combo.<br>
-      Só você e o dedo contra o relógio. Chegue a <strong style="color:#00ff88;">50.000 pontos</strong> em <strong style="color:#00ff88;">3 minutos</strong>.
+      O desafio mais difícil do jogo: chegue a <strong style="color:#00ff88;">1 QUADRILHÃO</strong> de pontos usando tudo que você construiu — upgrades, prestígio, multiplicadores. Sem cronômetro, é difícil pela escala mesmo!
     </div>
-    <div style="font-family:'Black Han Sans',sans-serif;font-size:1.3rem;color:#ffdd00;text-shadow:0 0 16px #ffdd00;margin-bottom:.3rem;" id="proTimer">3m 0s</div>
     <div style="background:#0a2418;border:2px solid #00ff88;border-radius:8px;height:16px;overflow:hidden;margin:.3rem auto;max-width:320px;">
       <div id="proBar" style="height:100%;background:linear-gradient(90deg,#00ff88,#00cc66);transition:width .2s;width:0%"></div>
     </div>
-    <div id="proScoreDisp" style="font-size:.55rem;color:var(--sub);margin-bottom:.7rem;">0 / 50.0K</div>
-    <button id="proStartBtn" onclick="startProMode()" style="font-family:'Nunito',sans-serif;font-size:.85rem;padding:.5rem 1.4rem;background:linear-gradient(135deg,#004422,#00ff88);color:#000;border:none;border-radius:12px;cursor:pointer;letter-spacing:2px;box-shadow:0 0 16px #00ff8855,0 4px 0 #002211;font-weight:900;">▶ COMEÇAR DESAFIO</button>
-    <button id="proClickBtn" onclick="proClick(event)" style="display:none;width:100%;max-width:280px;margin:.5rem auto 0;font-family:'Nunito',sans-serif;font-size:1.1rem;padding:1.1rem;background:linear-gradient(135deg,#003322,#00ff88,#00cc66);color:#000;border:none;border-radius:18px;cursor:pointer;letter-spacing:2px;box-shadow:0 0 24px #00ff8866,0 5px 0 #002211;font-weight:900;user-select:none;">👊 CLIQUE PRO!</button>
+    <div id="proScoreDisp" style="font-size:.55rem;color:var(--sub);margin-bottom:.3rem;">0 / 1.00Qa</div>
     <div id="proResult" style="display:none;margin-top:.6rem;font-family:'Nunito',sans-serif;font-size:.8rem;letter-spacing:1px;font-weight:700;"></div>
   </div>
-  <div style="font-size:.48rem;color:#446655;text-align:center;line-height:1.6;">Passar pela primeira vez dá uma recompensa permanente enorme.<br>Depois disso, cada vitória ainda dá um bônus de pontos!</div>
+  <div style="font-size:.48rem;color:#446655;text-align:center;line-height:1.6;">Ao chegar lá, você ganha de uma vez: <strong style="color:#88ffcc;">+10⭐ de prestígio</strong> e <strong style="color:#88ffcc;">multiplicador global ×1.5 PERMANENTE</strong>.</div>
 </div>
 
 </div><!-- /.wrap -->
@@ -1345,7 +1355,7 @@ function showTab(name,btn){
   if(panel)panel.classList.add('on');
   if(btn)btn.classList.add('on');
   sfx('hover');
-  if(name==='ranked'){rankedOpened=true;updateRanked();checkRankedMS();}
+  if(name==='ranked'){rankedOpened=true;updateRanked();checkRankedMS();loadGlobalTop10();}
   if(name==='skins')renderSkins();
   if(name==='pro')updateProUI();
 }
@@ -1927,6 +1937,11 @@ const SKINS=[
   {id:'sk_gangle', name:'GANGLE',   emoji:'🎭',bg:'radial-gradient(circle at 38% 32%,#ff0000,#002244)',border:'#ff4444',cost:0,free:true,secret:true},
   {id:'sk_kinger', name:'KINGER',   emoji:'♞',bg:'radial-gradient(circle at 38% 32%,#ffaa00,#332200)',border:'#ffcc44',cost:0,free:true,secret:true},
   {id:'sk_zooble', name:'ZOOBLE',   emoji:'🌀',bg:'radial-gradient(circle at 38% 32%,#00ffcc,#ff00ff)',border:'#00ffcc',cost:0,free:true,secret:true},
+  // ── NOVAS (originais) ──
+  {id:'sk_candy',  name:'CANDY',    emoji:'🍬',bg:'radial-gradient(circle at 38% 32%,#ff99dd,#cc3388)',border:'#ff66cc',cost:18000},
+  {id:'sk_amigo',  name:'AMIGO',    emoji:'🤝',bg:'radial-gradient(circle at 38% 32%,#66ccff,#0044aa)',border:'#0088ff',cost:30000},
+  {id:'sk_storm',  name:'TEMPESTADE',emoji:'🌩️',bg:'radial-gradient(circle at 38% 32%,#aa88ff,#221144)',border:'#aa44ff',cost:50000},
+  {id:'sk_proGold',name:'PRO ELITE',emoji:'🏆',bg:'radial-gradient(circle at 38% 32%,#fff0a0,#665500)',border:'#ffdd00',cost:0,free:true,secret:true},
 ];
 const ownedSkins=new Set(['sk_default']);
 let activeSkin='sk_default';
@@ -2045,6 +2060,28 @@ function checkRankedMS(){
   });
 }
 
+async function loadGlobalTop10(){
+  const el=document.getElementById('globalTop10List');if(!el)return;
+  el.innerHTML='<div style="text-align:center;font-size:.5rem;color:#334455;padding:.6rem;">Carregando... 🔄</div>';
+  try{
+    const snap=await db.collection('jogadores').orderBy('score','desc').limit(10).get();
+    if(snap.empty){el.innerHTML='<div style="text-align:center;font-size:.5rem;color:#334455;padding:.6rem;">Ninguém no ranking ainda!</div>';return;}
+    const medals=['🥇','🥈','🥉'];
+    let html='';let pos=0;
+    snap.forEach(doc=>{
+      const d=doc.data();
+      const isMe=playerName&&d.nome===playerName;
+      html+=`<div style="display:flex;align-items:center;gap:.5rem;background:${isMe?'#221a00':'#0a0a18'};border:1px solid ${isMe?'#ff8800':'#223344'};border-radius:10px;padding:.4rem .6rem;margin-bottom:.3rem;">
+        <span style="font-size:.8rem;width:22px;text-align:center;">${medals[pos]||(pos+1)+'º'}</span>
+        <span style="flex:1;font-family:'Nunito',sans-serif;font-size:.72rem;color:${isMe?'#ffaa00':'#88aacc'};">${d.nome||'???'}${isMe?' (você)':''}</span>
+        <span style="font-family:'Nunito',sans-serif;font-size:.68rem;color:#ffdd00;">${fmt(d.score||0)}</span>
+      </div>`;
+      pos++;
+    });
+    el.innerHTML=html;
+  }catch(e){el.innerHTML='<div style="text-align:center;font-size:.5rem;color:#ff4444;padding:.6rem;">Erro ao carregar ranking!</div>';}
+}
+
 // CHAOS
 // ══ CONTROLES DO CAOS ══
 let chaosInterval=2000;
@@ -2114,6 +2151,54 @@ function chaosAll(){
   admConfetti();sfx('chaos');
   toast('💀 TODOS OS EVENTOS DE UMA VEZ!!','rainbow');
 }
+
+// ══════════════════════════════════════════════════════
+// 🍬 EVENTOS SAZONAIS — de tempos em tempos rola um evento
+// que deixa o botão de clicar ×2 (ou mais!) por um tempo.
+// Tem um contador mostrando quando o próximo vai começar.
+// ══════════════════════════════════════════════════════
+const SEASONAL_EVENTS=[
+  {id:'candy', name:'CHUVA DE DOCES',      icon:'🍬',color:'#ff66cc',mult:2, dur:60},
+  {id:'turbo', name:'HORA TURBO',          icon:'⚡',color:'#ffdd00',mult:3, dur:45},
+  {id:'gold',  name:'CORRIDA DO OURO',     icon:'💰',color:'#ffaa00',mult:4, dur:30},
+  {id:'cosmic',name:'TEMPESTADE CÓSMICA',  icon:'🌌',color:'#aa44ff',mult:5, dur:20},
+  {id:'lucky', name:'HORA DA SORTE',       icon:'🍀',color:'#44ff88',mult:10,dur:10},
+];
+function seasonalRandomGap(){return Math.floor((3*60+Math.random()*4*60)*1000);} // 3 a 7 min
+let seasonalNextAt=Date.now()+seasonalRandomGap();
+let seasonalActive=null,seasonalEndsAt=0;
+
+function tickSeasonalEvents(){
+  const now=Date.now();
+  if(seasonalActive){
+    if(now>=seasonalEndsAt){seasonalActive=null;seasonalNextAt=now+seasonalRandomGap();}
+  } else if(now>=seasonalNextAt){
+    const ev=SEASONAL_EVENTS[Math.floor(Math.random()*SEASONAL_EVENTS.length)];
+    seasonalActive=ev;seasonalEndsAt=now+ev.dur*1000;
+    atmp(ev.mult,ev.dur);
+    toast(ev.icon+' EVENTO: '+ev.name+'! Botão ×'+ev.mult+' por '+ev.dur+'s!','rainbow');
+    sfx('chaos');admConfetti();
+  }
+  renderSeasonalBanner();
+}
+function renderSeasonalBanner(){
+  const b=document.getElementById('seasonalBanner');if(!b)return;
+  const now=Date.now();
+  if(seasonalActive){
+    const left=Math.max(0,Math.ceil((seasonalEndsAt-now)/1000));
+    b.style.borderColor=seasonalActive.color;
+    b.style.boxShadow='0 0 14px '+seasonalActive.color+'66';
+    b.innerHTML=`<span style="font-size:1rem;">${seasonalActive.icon}</span><span style="flex:1;color:${seasonalActive.color};font-weight:700;">${seasonalActive.name} ATIVO! ×${seasonalActive.mult}</span><span style="color:${seasonalActive.color};">${left}s</span>`;
+  } else {
+    const left=Math.max(0,Math.ceil((seasonalNextAt-now)/1000));
+    const m=Math.floor(left/60),s=String(left%60).padStart(2,'0');
+    b.style.borderColor='#334455';
+    b.style.boxShadow='none';
+    b.innerHTML=`<span>⏳</span><span style="flex:1;color:#8899aa;">Próximo evento em</span><span style="color:#ffdd00;">${m}m ${s}s</span>`;
+  }
+}
+setInterval(tickSeasonalEvents,1000);
+tickSeasonalEvents();
 
 // Lista de eventos do caos separada pra reutilizar
 const CHAOS_EVENTS=[
@@ -2266,7 +2351,6 @@ const MS=[
   {id:'ms_dailyperfect',label:'✨ <strong>DIA PERFEITO</strong>',goal:1,dailyPerfect:true,bonus:()=>score+=50000,rew:'+50K pts',icon:'✨',desc:'Completou as 3 missões diárias no mesmo dia!'},
   // MODO PRO
   {id:'ms_pro',label:'🏆 <strong>PASSOU DO MODO PRO</strong>',goal:1,pro:true,bonus:()=>{},rew:'Lenda absoluta!',icon:'🏆',desc:'Zerou o desafio mais difícil do jogo, sem upgrades e contra o tempo!'},
-  {id:'ms_pro3',label:'🔥 <strong>PRO 3 VEZES</strong>',goal:3,proWins:true,bonus:()=>{globalMult+=10;},rew:'Mult +10',icon:'🔥',desc:'Passou do Modo PRO 3 vezes!'},
 ];
 const dMS=new Set();
 
@@ -2283,8 +2367,118 @@ function ripple(ev){
   setTimeout(()=>r.remove(),550);
 }
 
+// ══════════════════════════════════════════════════════
+// 🤖 ANTI-AUTOCLICKER — detecta cliques rápidos e muito
+// regulares (típico de programas de autoclick) SUSTENTADOS
+// por um tempo mínimo. Se continuar clicando assim por tempo
+// demais, vai direto pra tela de banimento (sem perguntar).
+// Quanto mais vezes já foi banido, mais tempo precisa segurar
+// o padrão de bot pra ser banido de novo:
+//   1ª vez → 5s sustentados | 2ª vez → 15s | 3ª vez+ → 20s
+// ══════════════════════════════════════════════════════
+let clickTimestampsAC=[];
+let banCountAC=parseInt(localStorage.getItem('cmBanCount')||'0',10);
+let suspiciousStreakStart=null;
+
+function requiredAutoclickSeconds(){
+  if(banCountAC<=0)return 5;
+  if(banCountAC===1)return 15;
+  return 20;
+}
+function recordClickForAntiCheat(){
+  const now=Date.now();
+  if(document.getElementById('banScreenOv'))return;
+  clickTimestampsAC.push(now);
+  if(clickTimestampsAC.length>6)clickTimestampsAC.shift();
+  if(clickTimestampsAC.length<6){suspiciousStreakStart=null;return;}
+  const intervals=[];
+  for(let i=1;i<clickTimestampsAC.length;i++)intervals.push(clickTimestampsAC[i]-clickTimestampsAC[i-1]);
+  const avg=intervals.reduce((a,b)=>a+b,0)/intervals.length;
+  const variance=intervals.reduce((a,b)=>a+(b-avg)*(b-avg),0)/intervals.length;
+  const stddev=Math.sqrt(variance);
+  // clique humano rápido tem variação natural; autoclicker é muito rápido E muito regular
+  const looksLikeBot=avg<70&&stddev<18;
+  if(!looksLikeBot){suspiciousStreakStart=null;return;}
+  if(!suspiciousStreakStart)suspiciousStreakStart=clickTimestampsAC[0];
+  const elapsedSec=(now-suspiciousStreakStart)/1000;
+  if(elapsedSec>=requiredAutoclickSeconds()){
+    suspiciousStreakStart=null;clickTimestampsAC=[];
+    triggerBanSequence(); // vai direto pra tela, sem perguntar nada
+  }
+}
+const BAN_LEVELS=[
+  null,
+  {duration:60,  title:'🚫 BANIDO POR USAR AUTOCLICKER',     sub:'Isso é contra as regras do jogo. Seus pontos foram reduzidos.',         penalty:.5, shake:false},
+  {duration:300, title:'☠️ BANIDO DE NOVO?!',                sub:'Você já tinha sido avisado. Isso agora é MUITO mais sério.',            penalty:.25,shake:true},
+  {duration:3600,title:'💀 BANIDO PELA 3ª VEZ 💀',           sub:'ISSO PRECISA PARAR AGORA. ÚLTIMO AVISO SÉRIO DE VERDADE.',              penalty:.1, shake:true},
+];
+function triggerBanSequence(){
+  banCountAC++;
+  localStorage.setItem('cmBanCount',String(banCountAC));
+  const level=Math.min(banCountAC,3);
+  localStorage.setItem('cmBanUntil',String(Date.now()+BAN_LEVELS[level].duration*1000));
+  localStorage.setItem('cmBanLevel',String(level));
+  showBanScreen(BAN_LEVELS[level],false);
+}
+function resumeBanIfActive(){
+  const until=parseInt(localStorage.getItem('cmBanUntil')||'0',10);
+  if(!until)return;
+  if(until>Date.now()){
+    const level=Math.min(Math.max(parseInt(localStorage.getItem('cmBanLevel')||'1',10),1),3);
+    const remaining=Math.ceil((until-Date.now())/1000);
+    showBanScreen({...BAN_LEVELS[level],duration:remaining},false);
+  } else {
+    localStorage.removeItem('cmBanUntil');localStorage.removeItem('cmBanLevel');
+  }
+}
+function previewBanScreen(level){
+  if(document.getElementById('banScreenOv'))return;
+  toast('👀 Pré-visualizando FASE '+level+' do anti-autoclicker (sem punição real)','rainbow');
+  showBanScreen(BAN_LEVELS[level],true);
+}
+function showBanScreen(cfg,isPreview){
+  const ov=document.createElement('div');
+  ov.id='banScreenOv';
+  ov.style.cssText='position:fixed;inset:0;z-index:2000;background:#000;display:flex;align-items:center;justify-content:center;flex-direction:column;';
+  ov.innerHTML=`<div style="text-align:center;max-width:340px;padding:1rem;${cfg.shake?'animation:cardShake .15s ease-in-out infinite;':''}">
+    <div style="font-size:3rem;margin-bottom:.6rem;">⛔</div>
+    ${isPreview?'<div style="font-family:\'Nunito\',sans-serif;font-size:.55rem;color:#888;letter-spacing:2px;margin-bottom:.4rem;">🔍 MODO PRÉVIA — NINGUÉM SERÁ PUNIDO</div>':''}
+    <div style="font-family:'Nunito',sans-serif;font-size:1.15rem;color:#ff2222;letter-spacing:2px;margin-bottom:.6rem;text-shadow:0 0 20px #ff0000;">${cfg.title}</div>
+    <div style="font-size:.62rem;color:#ff8888;margin-bottom:1.2rem;line-height:1.6;">${cfg.sub}</div>
+    <div id="banCountdown" style="font-family:'Rajdhani',sans-serif;font-size:1rem;color:#664444;font-weight:700;"></div>
+  </div>`;
+  document.body.appendChild(ov);
+  sfx('error');
+  function fmtBanTime(s){
+    if(s<=0)return'';
+    if(s>=3600)return Math.floor(s/3600)+'h '+Math.floor((s%3600)/60)+'m '+(s%60)+'s...';
+    if(s>=60)return Math.floor(s/60)+'m '+(s%60)+'s...';
+    return s+'s...';
+  }
+  let left=cfg.duration;
+  const cd=document.getElementById('banCountdown');
+  if(cd)cd.textContent=fmtBanTime(left);
+  const iv=setInterval(()=>{
+    left--;
+    if(cd)cd.textContent=fmtBanTime(left);
+    if(left<=0){clearInterval(iv);finishBanSequence(cfg,isPreview);}
+  },1000);
+}
+function finishBanSequence(cfg,isPreview){
+  if(!isPreview){
+    score=Math.floor(score*cfg.penalty);
+    updateUI();
+    localStorage.removeItem('cmBanUntil');localStorage.removeItem('cmBanLevel');
+    toast('⚠️ Pontos reduzidos por usar autoclicker! Não faça isso de novo.','red');
+  } else {
+    toast('👀 Fim da prévia — nada foi alterado no seu jogo.','green');
+  }
+  document.getElementById('banScreenOv')?.remove();
+}
+
 function doClick(ev){
   sfx('click');
+  recordClickForAntiCheat();
   const now=Date.now();
   let pts=clickPower;
   // chaos check
@@ -2708,73 +2902,32 @@ function startDailyTimer(){
 }
 
 // ══════════════════════════════════════════════════════
-// 🏆 MODO PRO — desafio difícil e separado do jogo normal
-// Nesse modo você clica do ZERO: sem upgrades, sem multiplicador,
-// sem combo — só +1 por clique mesmo, contra um cronômetro.
-// Passar é difícil de propósito; é o "hardcore mode" do jogo.
+// 🏆 MODO PRO — o desafio mais difícil do jogo: chegar a
+// 1 QUADRILHÃO de pontos (com tudo que você já construiu:
+// upgrades, prestígio, multiplicadores). Não tem cronômetro,
+// é difícil pela escala mesmo — é o topo do topo.
 // ══════════════════════════════════════════════════════
-const PRO_GOAL=50000;
-const PRO_TIME=180; // 3 minutos
-let proActive=false,proScore=0,proTimeLeft=0,proIv=null;
+const PRO_GOAL=1e15; // 1 quadrilhão
 let proWon=localStorage.getItem('cmProWon')==='1';
-let proWinsCount=parseInt(localStorage.getItem('cmProWins')||'0',10);
 
-function startProMode(){
-  if(proActive)return;
-  proActive=true;proScore=0;proTimeLeft=PRO_TIME;
-  const sb=document.getElementById('proStartBtn');if(sb)sb.style.display='none';
-  const cb=document.getElementById('proClickBtn');if(cb)cb.style.display='block';
-  const r=document.getElementById('proResult');if(r)r.style.display='none';
-  sfx('chaos');toast('🏆 MODO PRO INICIADO! Sem upgrades, só no talento! 😤','red');
+function checkProMode(){
   updateProUI();
-  clearInterval(proIv);
-  proIv=setInterval(()=>{
-    proTimeLeft--;
-    updateProUI();
-    if(proTimeLeft<=0){clearInterval(proIv);proIv=null;endProMode(false);}
-  },1000);
-}
-function proClick(ev){
-  if(!proActive)return;
-  proScore++; // propositalmente sem clickPower, sem globalMult, sem combo
-  sfx('click');
-  if(ev)fx(ev,'+1','#ff8800',ev.clientX,ev.clientY);
-  updateProUI();
-  if(proScore>=PRO_GOAL){clearInterval(proIv);proIv=null;endProMode(true);}
-}
-function endProMode(won){
-  proActive=false;
-  const cb=document.getElementById('proClickBtn');if(cb)cb.style.display='none';
-  const sb=document.getElementById('proStartBtn');if(sb){sb.style.display='block';sb.textContent='🔁 TENTAR DE NOVO';}
-  const r=document.getElementById('proResult');
-  if(won){
-    proWinsCount++;localStorage.setItem('cmProWins',String(proWinsCount));
+  if(proWon)return;
+  if(score>=PRO_GOAL){
+    proWon=true;localStorage.setItem('cmProWon','1');
+    globalMult*=1.5;prestigeStars+=10;
+    ownedSkins.add('sk_proGold');
     sfx('conquest');admConfetti();
-    if(!proWon){
-      proWon=true;localStorage.setItem('cmProWon','1');
-      globalMult*=1.5;prestigeStars+=10;
-      if(r){r.style.display='block';r.style.color='#00ff88';r.innerHTML='🏆 VOCÊ PASSOU DO MODO PRO!!!<br><span style="font-size:.5rem;color:#88ffcc;">Recompensa única: +10⭐ e Mult ×1.5 PERMANENTE!</span>';}
-      toast('🏆 PRIMEIRA VEZ NO MODO PRO! +10⭐ e Mult ×1.5 permanente!','rainbow');
-    } else {
-      score+=100000;totalEarned+=100000;
-      if(r){r.style.display='block';r.style.color='#00ff88';r.innerHTML='🏆 PASSOU DE NOVO!!<br><span style="font-size:.5rem;color:#88ffcc;">+100.000 pts de bônus</span>';}
-      toast('🏆 Passou do Modo PRO de novo! +100K pts!','gold');
-    }
-    updateUI();checkMS();checkPrestige();
-  } else {
-    sfx('error');
-    if(r){r.style.display='block';r.style.color='#ff4444';r.innerHTML='💀 TEMPO ESGOTADO!<br><span style="font-size:.5rem;color:#ff8888;">Chegou em '+fmt(proScore)+' / '+fmt(PRO_GOAL)+'. Tenta de novo!</span>';}
-    toast('💀 Tempo esgotado no Modo PRO! Tenta de novo!','red');
+    const r=document.getElementById('proResult');
+    if(r){r.style.display='block';r.style.color='#00ff88';r.innerHTML='🏆 VOCÊ PASSOU DO MODO PRO!!!<br><span style="font-size:.5rem;color:#88ffcc;">Recompensa única: +10⭐ e Mult ×1.5 PERMANENTE!</span>';}
+    toast('🏆 PASSOU DO MODO PRO! Chegou a 1 quadrilhão! +10⭐ e Mult ×1.5 permanente!','rainbow');
+    updateUI();checkMS();checkPrestige();updateProUI();
   }
-  updateProUI();
 }
 function updateProUI(){
-  const t=document.getElementById('proTimer');
-  if(t)t.textContent=proActive?(Math.floor(Math.max(0,proTimeLeft)/60)+'m '+(Math.max(0,proTimeLeft)%60)+'s'):(PRO_TIME/60)+'m 0s';
-  const s=document.getElementById('proScoreDisp');if(s)s.textContent=fmt(proScore)+' / '+fmt(PRO_GOAL);
-  const bar=document.getElementById('proBar');if(bar)bar.style.width=Math.min(100,proScore/PRO_GOAL*100)+'%';
+  const s=document.getElementById('proScoreDisp');if(s)s.textContent=fmt(score)+' / '+fmt(PRO_GOAL);
+  const bar=document.getElementById('proBar');if(bar)bar.style.width=Math.min(100,score/PRO_GOAL*100)+'%';
   const badge=document.getElementById('proWonBadge');if(badge)badge.style.display=proWon?'block':'none';
-  const winsEl=document.getElementById('proWinsCount');if(winsEl)winsEl.textContent=proWinsCount;
 }
 
 // Hook into buy to track daily buys
@@ -2864,7 +3017,6 @@ function checkMS(){
     else if(m.dailyDone)val=totalDailyDone;
     else if(m.dailyPerfect)val=dailyPerfectEver?1:0;
     else if(m.pro)    val=proWon?1:0;
-    else if(m.proWins)val=proWinsCount;
     else              val=score;
     if(val>=m.goal){
       dMS.add(m.id);m.bonus();sfx('milestone');
@@ -2887,6 +3039,7 @@ function updateUI(){
   document.getElementById('cpsLine').textContent='+'+fmt(Math.floor(clickPower*m))+'/clique'+(autoPerSec>0?' · +'+fmt(Math.floor(autoPerSec*m))+'/seg':'');
   document.getElementById('bpc').textContent='+'+fmt(Math.floor(clickPower*m));
   renderStrip();
+  checkProMode();
 }
 function renderStrip(){
   const s=document.getElementById('astrip');s.innerHTML='';
@@ -2962,7 +3115,6 @@ function rMS(){
     else if(m.dailyDone)val=totalDailyDone;
     else if(m.dailyPerfect)val=dailyPerfectEver?1:0;
     else if(m.pro)val=proWon?1:0;
-    else if(m.proWins)val=proWinsCount;
     else if(m.sug||m.mod||m.night||m.secret||m.jojo)val=done?1:0;
     else val=score;
     const pct=m.first?100:Math.min(100,Math.floor(val/m.goal*100));
@@ -2987,7 +3139,6 @@ function rMSbars(){
     else if(m.dailyDone)val=totalDailyDone;
     else if(m.dailyPerfect)val=dailyPerfectEver?1:0;
     else if(m.pro)val=proWon?1:0;
-    else if(m.proWins)val=proWinsCount;
     else if(m.first||m.sug||m.mod||m.night||m.secret||m.jojo)val=0;
     else val=score;
     const pct=Math.min(100,Math.floor(val/m.goal*100));
@@ -3104,6 +3255,9 @@ const SECRET_CODES={
   'atualizando': ()=>openModoAtualizando(),
   'erroo': ()=>openModoErroFalso(),
   '2\\8\\2016': ()=>openModoHistoria(),
+  'euroubei1': ()=>previewBanScreen(1),
+  'euroubei2': ()=>previewBanScreen(2),
+  'euroubei3': ()=>previewBanScreen(3),
 };
 const MAX_CODE_LEN=Math.max(...Object.keys(SECRET_CODES).map(k=>k.length));
 let kBuffer='';let kTimer=null;
@@ -5407,6 +5561,9 @@ async function openFriends(){
     <!-- SOLICITAÇÕES PENDENTES -->
     <div id="friendRequests" style="margin-bottom:.5rem;"></div>
 
+    <!-- RANKING DE AMIGOS -->
+    <div id="friendRanking" style="margin-bottom:.5rem;"></div>
+
     <!-- LISTA DE AMIGOS -->
     <div id="friendsList" style="margin-bottom:.7rem;">
       <div style="text-align:center;font-size:.5rem;color:#334455;padding:.5rem;">Carregando amigos... 🔄</div>
@@ -5526,29 +5683,66 @@ async function loadFriendsList(){
 
 async function renderFriendsList(friends){
   const el=document.getElementById('friendsList');
+  const rk=document.getElementById('friendRanking');
   if(!el)return;
-  let html='<div style="font-family:\'Nunito\',sans-serif;font-size:.65rem;color:#0088ff;margin-bottom:.4rem;">👥 SEUS AMIGOS ('+friends.length+')</div>';
+  const scored=[];
   for(const f of friends){
-    let score_f='?';let online=false;
+    let scoreVal=0,online=false;
     try{
       const snap=await db.collection('jogadores').where('nome','==',f.nome).get();
       if(!snap.empty){
         const d=snap.docs[0].data();
-        score_f=fmt(d.score||0);
+        scoreVal=d.score||0;
         const ts=d.updatedAt?.toMillis?.()??0;
         online=Date.now()-ts<300000;
       }
     }catch(e){}
-    html+=`<div style="display:flex;align-items:center;gap:.5rem;background:#0d0022;border:1px solid #0033aa;border-radius:10px;padding:.45rem .6rem;margin-bottom:.3rem;">
-      <span style="font-size:.75rem;">${online?'🟢':'⚫'}</span>
+    scored.push({nome:f.nome,score:scoreVal,online});
+  }
+  // ranking inclui você também
+  if(rk){
+    const all=[...scored,{nome:(playerName||'Você')+' (você)',score,online:true,isMe:true}].sort((a,b)=>b.score-a.score);
+    const medals=['🥇','🥈','🥉'];
+    let rhtml='<div style="font-family:\'Nunito\',sans-serif;font-size:.65rem;color:#ffaa00;margin-bottom:.4rem;">🏅 RANKING DE AMIGOS</div>';
+    all.forEach((p,i)=>{
+      rhtml+=`<div style="display:flex;align-items:center;gap:.5rem;background:${p.isMe?'#221a00':'#0a0a18'};border:1px solid ${p.isMe?'#ff8800':'#223344'};border-radius:8px;padding:.32rem .55rem;margin-bottom:.25rem;">
+        <span style="font-size:.7rem;width:20px;text-align:center;">${medals[i]||(i+1)+'º'}</span>
+        <span style="flex:1;font-family:'Nunito',sans-serif;font-size:.68rem;color:${p.isMe?'#ffaa00':'#88ccff'};">${p.nome}</span>
+        <span style="font-family:'Nunito',sans-serif;font-size:.62rem;color:#ffdd00;">${fmt(p.score)}</span>
+      </div>`;
+    });
+    rk.innerHTML=rhtml;
+  }
+  let html='<div style="font-family:\'Nunito\',sans-serif;font-size:.65rem;color:#0088ff;margin-bottom:.4rem;">👥 SEUS AMIGOS ('+friends.length+')</div>';
+  for(const f of scored){
+    const canGift=canSendGiftToday();
+    html+=`<div style="display:flex;align-items:center;gap:.4rem;background:#0d0022;border:1px solid #0033aa;border-radius:10px;padding:.45rem .6rem;margin-bottom:.3rem;flex-wrap:wrap;">
+      <span style="font-size:.75rem;">${f.online?'🟢':'⚫'}</span>
       <span style="flex:1;font-family:'Nunito',sans-serif;font-size:.75rem;color:#88ccff;">${f.nome}</span>
-      <span style="font-family:'Nunito',sans-serif;font-size:.6rem;color:#ffdd00;">${score_f}</span>
+      <span style="font-family:'Nunito',sans-serif;font-size:.6rem;color:#ffdd00;">${fmt(f.score)}</span>
+      <button onclick="sendGiftToFriend('${f.nome}')" ${canGift?'':'disabled'} style="font-family:'Nunito',sans-serif;font-size:.58rem;padding:.25rem .5rem;background:${canGift?'linear-gradient(135deg,#553300,#ffaa00)':'#222'};color:${canGift?'#000':'#666'};border:none;border-radius:6px;cursor:${canGift?'pointer':'not-allowed'};" title="${canGift?'Mandar presente (1x por dia)':'Você já mandou um presente hoje'}">🎁</button>
       <button onclick="openChat('${f.nome}')" style="font-family:'Nunito',sans-serif;font-size:.58rem;padding:.25rem .5rem;background:linear-gradient(135deg,#003388,#0088ff);color:#fff;border:none;border-radius:6px;cursor:pointer;">💬</button>
       <button onclick="challengeFriend('${f.nome}')" style="font-family:'Nunito',sans-serif;font-size:.58rem;padding:.25rem .5rem;background:linear-gradient(135deg,#443300,#ffaa00);color:#000;border:none;border-radius:6px;cursor:pointer;">⚔️</button>
       <button onclick="removeFriend('${f.nome}')" style="font-family:'Nunito',sans-serif;font-size:.58rem;padding:.25rem .5rem;background:linear-gradient(135deg,#330000,#880000);color:#ff4444;border:1px solid #550000;border-radius:6px;cursor:pointer;">🗑️</button>
     </div>`;
   }
   el.innerHTML=html;
+}
+function canSendGiftToday(){return localStorage.getItem('cmLastGiftDate')!==getTodayKey();}
+async function sendGiftToFriend(name){
+  if(!canSendGiftToday()){toast('Você já mandou um presente hoje! Volta amanhã 🎁','red');return;}
+  try{
+    const snap=await db.collection('jogadores').where('nome','==',name).get();
+    if(snap.empty){toast('Jogador não encontrado!','red');return;}
+    const doc=snap.docs[0];
+    const giftAmount=5000;
+    await db.collection('jogadores').doc(doc.id).update({score:(doc.data().score||0)+giftAmount,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    localStorage.setItem('cmLastGiftDate',getTodayKey());
+    score+=1000;totalEarned+=1000;updateUI();
+    toast('🎁 Presente de '+fmt(giftAmount)+' pts enviado pra '+name+'! (+1K de bônus pra você)','green');
+    sfx('milestone');admConfetti();
+    await loadFriendsList();
+  }catch(e){toast('Erro ao enviar presente!','red');}
 }
 
 async function openChat(name){
@@ -7667,6 +7861,7 @@ setInterval(saveLocalGame,10000);
 window.addEventListener('beforeunload',saveLocalGame);
 document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden')saveLocalGame(); });
 restoreLocalGame();
+resumeBanIfActive();
 </script>
 </body>
 </html>
