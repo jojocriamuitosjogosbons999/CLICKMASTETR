@@ -828,6 +828,7 @@ footer{text-align:center;padding:.9rem;font-size:.5rem;color:var(--border);lette
   <button class="tab" onclick="showTab('chaos',this)" id="t-chaos" style="color:#ff2244;border-color:#660011;animation:tabChaos .8s ease-in-out infinite;">💀 CAOS</button>
   <button class="tab" onclick="showTab('ms',this)" id="t-ms">🏆 CONQUISTAS</button>
   <button class="tab" onclick="showTab('daily',this)" id="t-daily" style="color:#ffaa00;border-color:#664400;">📅 DIÁRIAS</button>
+  <button class="tab" onclick="showTab('pro',this)" id="t-pro" style="color:#00ff88;border-color:#005533;">🏆 MODO PRO</button>
 </div>
 
 <!-- TAB PANELS -->
@@ -916,6 +917,25 @@ footer{text-align:center;padding:.9rem;font-size:.5rem;color:var(--border);lette
   <div style="text-align:center;font-size:.52rem;color:#664400;margin-bottom:.5rem;letter-spacing:2px;">Renova todo dia à meia-noite! ⏰</div>
   <div id="dailyTimer" style="text-align:center;font-family:'Rajdhani',sans-serif;font-size:.75rem;color:#ffaa00;margin-bottom:.7rem;font-weight:700;letter-spacing:2px;"></div>
   <div class="mslist" id="dailyList"></div>
+</div>
+<div class="tpanel" id="tab-pro">
+  <div class="stitle" style="color:#00ff88;text-shadow:0 0 12px #00ff88;">🏆 MODO PRO</div>
+  <div style="background:#001a0f;border:3px solid #00ff88;border-radius:16px;padding:1rem;text-align:center;margin-bottom:.65rem;">
+    <div id="proWonBadge" style="display:none;font-size:.5rem;color:#ffdd00;letter-spacing:2px;margin-bottom:.4rem;">👑 JÁ CONQUISTADO — passou <span id="proWinsCount">0</span>x</div>
+    <div style="font-size:.55rem;color:#88ffcc;line-height:1.7;margin-bottom:.7rem;">
+      Desafio HARDCORE: zera tudo, sem upgrade, sem multiplicador, sem combo.<br>
+      Só você e o dedo contra o relógio. Chegue a <strong style="color:#00ff88;">50.000 pontos</strong> em <strong style="color:#00ff88;">3 minutos</strong>.
+    </div>
+    <div style="font-family:'Black Han Sans',sans-serif;font-size:1.3rem;color:#ffdd00;text-shadow:0 0 16px #ffdd00;margin-bottom:.3rem;" id="proTimer">3m 0s</div>
+    <div style="background:#0a2418;border:2px solid #00ff88;border-radius:8px;height:16px;overflow:hidden;margin:.3rem auto;max-width:320px;">
+      <div id="proBar" style="height:100%;background:linear-gradient(90deg,#00ff88,#00cc66);transition:width .2s;width:0%"></div>
+    </div>
+    <div id="proScoreDisp" style="font-size:.55rem;color:var(--sub);margin-bottom:.7rem;">0 / 50.0K</div>
+    <button id="proStartBtn" onclick="startProMode()" style="font-family:'Nunito',sans-serif;font-size:.85rem;padding:.5rem 1.4rem;background:linear-gradient(135deg,#004422,#00ff88);color:#000;border:none;border-radius:12px;cursor:pointer;letter-spacing:2px;box-shadow:0 0 16px #00ff8855,0 4px 0 #002211;font-weight:900;">▶ COMEÇAR DESAFIO</button>
+    <button id="proClickBtn" onclick="proClick(event)" style="display:none;width:100%;max-width:280px;margin:.5rem auto 0;font-family:'Nunito',sans-serif;font-size:1.1rem;padding:1.1rem;background:linear-gradient(135deg,#003322,#00ff88,#00cc66);color:#000;border:none;border-radius:18px;cursor:pointer;letter-spacing:2px;box-shadow:0 0 24px #00ff8866,0 5px 0 #002211;font-weight:900;user-select:none;">👊 CLIQUE PRO!</button>
+    <div id="proResult" style="display:none;margin-top:.6rem;font-family:'Nunito',sans-serif;font-size:.8rem;letter-spacing:1px;font-weight:700;"></div>
+  </div>
+  <div style="font-size:.48rem;color:#446655;text-align:center;line-height:1.6;">Passar pela primeira vez dá uma recompensa permanente enorme.<br>Depois disso, cada vitória ainda dá um bônus de pontos!</div>
 </div>
 
 </div><!-- /.wrap -->
@@ -1279,9 +1299,9 @@ const LANGS={
   eua:{flag:'🇺🇸',click:'CLICK!',pts:'POINTS',cps:'PTS/SEC',clk:'PTS/CLICK',clicks:'CLICKS',pres:'⭐ PRESTIGE',
     tabs:['🚀 BOOSTS','⭐ PRESTIGE','🏅 RANKED','🎉 FUN','🎨 SKINS','💀 CHAOS','🏆 ACHIEVEMENTS']},
   mex:{flag:'🇲🇽',click:'¡CLIC!',pts:'PUNTOS',cps:'PTS/SEG',clk:'PTS/CLIC',clicks:'CLICS',pres:'⭐ PRESTIGIAR',
-    tabs:['🚀 BOOSTS','⭐ PRESTIGIO','🏅 RANKEADO','🎉 DIVERSÃO','🎨 SKINS','💀 CAOS','🏆 LOGROS']},
+    tabs:['🚀 BOOSTS','⭐ PRESTIGIO','🏅 RANKEADO','🎉 DIVERSIÓN','🎨 SKINS','💀 CAOS','🏆 LOGROS']},
   es:{flag:'🇪🇸',click:'¡CLIC!',pts:'PUNTOS',cps:'PTS/SEG',clk:'PTS/CLIC',clicks:'CLICS',pres:'⭐ PRESTIGIAR',
-    tabs:['🚀 BOOSTS','⭐ PRESTIGIO','🏅 CLASIFICADO','🎉 DIVERSÃO','🎨 SKINS','💀 CAOS','🏆 LOGROS']},
+    tabs:['🚀 BOOSTS','⭐ PRESTIGIO','🏅 CLASIFICADO','🎉 DIVERSIÓN','🎨 SKINS','💀 CAOS','🏆 LOGROS']},
 };
 function setLang(code,btn){
   const L=LANGS[code];if(!L)return;
@@ -1327,6 +1347,7 @@ function showTab(name,btn){
   sfx('hover');
   if(name==='ranked'){rankedOpened=true;updateRanked();checkRankedMS();}
   if(name==='skins')renderSkins();
+  if(name==='pro')updateProUI();
 }
 
 // ══════════════════════════════════════════════════════
@@ -1872,6 +1893,10 @@ const CHAOS_UPS=[
   {id:'ch8',name:'FANTASMA ×5',     icon:'👻',desc:'5 fantasmas simultâneos', cost:8000,eff:()=>{for(let i=0;i<5;i++)setInterval(()=>{if(chaosActive){const p=Math.floor(clickPower*gm());score+=p;totalEarned+=p;updateUI();}},1000+i*200);},color:'#aaaaff',tag:'CAOS'},
   {id:'ch9',name:'BURACO NEGRO',    icon:'🕳️',desc:'-50K mas ×3 mult',        cost:20000,eff:()=>{score=Math.max(0,score-50000);globalMult*=3;toast('🕳️ -50K mas ×3!','gold');updateUI();},color:'#220022',tag:'CAOS',inst:true},
   {id:'ch10',name:'CAOS TOTAL',     icon:'☠️',desc:'×50 por 5s',              cost:50000,eff:()=>{atmp(50,5);document.body.style.filter='hue-rotate(180deg)';setTimeout(()=>document.body.style.filter='',5000);},color:'#ff0000',tag:'CAOS'},
+  {id:'ch11',name:'TERREMOTO',      icon:'🌍',desc:'Tela treme + ×3 por 8s',  cost:80000,eff:()=>{atmp(3,8);document.body.style.animation='cardShake .3s ease-in-out infinite';setTimeout(()=>{document.body.style.animation='';},8000);},color:'#aa6600',tag:'CAOS',inst:true},
+  {id:'ch12',name:'CHUVA DE PONTOS',icon:'🌧️',desc:'Chuva de bônus por 6s', cost:120000,eff:()=>{let n=0;const iv=setInterval(()=>{if(!chaosActive){clearInterval(iv);return;}n++;const p=Math.floor(1000*chaosMultiplier);score+=p;totalEarned+=p;updateUI();if(n>=12)clearInterval(iv);},500);},color:'#4488ff',tag:'CAOS',inst:true},
+  {id:'ch13',name:'ESPELHO MALUCO', icon:'🪞',desc:'Botão troca de lugar ao clicar',cost:150000,eff:()=>{},color:'#ff44aa',tag:'CAOS'},
+  {id:'ch14',name:'APOCALIPSE',     icon:'🔥',desc:'-30% pts mas ×100 por 4s',cost:300000,eff:()=>{score=Math.max(0,Math.floor(score*.7));atmp(100,4);toast('🔥 APOCALIPSE! -30% mas ×100!!','rainbow');updateUI();},color:'#660000',tag:'CAOS',inst:true},
 ];
 const ALL=[...CU,...AU,...MU,...SU,...ZU,...DU,...PU];
 
@@ -2099,6 +2124,11 @@ const CHAOS_EVENTS=[
   ()=>{atmp(Math.floor(Math.random()*5)+2,3);},
   ()=>{score*=1+Math.random()*.3*chaosMultiplier;updateUI();},
   ()=>{score+=Math.floor(autoPerSec*gm()*5*chaosMultiplier);updateUI();},
+  ()=>{toast('🌀 O caos sussurra...','rainbow');},
+  ()=>{const v=Math.random()<.5?2:.5;score=Math.max(0,Math.floor(score*v));updateUI();toast(v>1?'📈 Pontos dobraram!':'📉 Pontos pela metade!',v>1?'green':'red');},
+  ()=>{document.body.style.filter='invert(1)';setTimeout(()=>{document.body.style.filter='';},800);},
+  ()=>{const els=document.querySelectorAll('.chip');els.forEach(e=>{e.style.transform='rotate('+(Math.random()*20-10)+'deg)';setTimeout(()=>e.style.transform='',600);});},
+  ()=>{score+=Math.floor(prestigeStars*1000*chaosMultiplier);updateUI();},
 ];
 
 function runChaosEvent(){
@@ -2124,6 +2154,7 @@ function toggleChaos(){
     chaosInterval=2000;chaosMultiplier=1;
     document.body.style.animation='';document.body.style.filter='';
     document.querySelector('.bigbtn').style.animation='';
+    {const btn=document.querySelector('.bigbtn');if(btn){btn.style.position='';btn.style.left='';btn.style.top='';btn.style.zIndex='';}}
     const spd=document.getElementById('chaosSpeedDisplay');
     if(spd)spd.textContent='velocidade: normal';
     const tb=document.getElementById('btnChaosTurbo');
@@ -2225,6 +2256,17 @@ const MS=[
   {id:'ms_skin10',label:'💄 <strong>10 SKINS</strong>',goal:10,skin:true,bonus:()=>{globalMult*=3;},rew:'×3 global!',icon:'💄',desc:'10 skins desbloqueadas!'},
   // AUTO COMPRA
   {id:'ms_autobuy',label:'🛒 <strong>COMPRADOR AUTOMÁTICO</strong>',goal:1,first:true,bonus:()=>score+=1000,rew:'+1K pts',icon:'🛒',desc:'Usou o compra automático!'},
+  // CAOS EXTRAS (novas)
+  {id:'ms_chaos25',label:'🌋 <strong>VULCÃO DE CAOS</strong>',goal:25,chaosms:true,bonus:()=>{globalMult+=100;},rew:'Mult +100',icon:'🌋',desc:'Ativou o Caos 25 vezes! Insano.'},
+  {id:'ms_chaosupg10',label:'💀 <strong>COLECIONADOR DO CAOS</strong>',goal:10,chaosUpg:true,bonus:()=>{globalMult*=4;},rew:'×4 global!',icon:'💀',desc:'Comprou 10 upgrades de Caos!'},
+  {id:'ms_chaosupgAll',label:'☠️ <strong>SENHOR DO CAOS</strong>',goal:14,chaosUpg:true,bonus:()=>{globalMult*=20;},rew:'×20 global!',icon:'☠️',desc:'Comprou TODOS os upgrades de Caos!'},
+  // DIÁRIAS EXTRAS
+  {id:'ms_daily7',label:'📅 <strong>SEMANA COMPLETA</strong>',goal:7,dailyDone:true,bonus:()=>{globalMult+=5;},rew:'Mult +5',icon:'📅',desc:'Completou 7 missões diárias no total!'},
+  {id:'ms_daily30',label:'🗓️ <strong>MÊS DE DEDICAÇÃO</strong>',goal:30,dailyDone:true,bonus:()=>{globalMult*=3;},rew:'×3 global!',icon:'🗓️',desc:'Completou 30 missões diárias no total!'},
+  {id:'ms_dailyperfect',label:'✨ <strong>DIA PERFEITO</strong>',goal:1,dailyPerfect:true,bonus:()=>score+=50000,rew:'+50K pts',icon:'✨',desc:'Completou as 3 missões diárias no mesmo dia!'},
+  // MODO PRO
+  {id:'ms_pro',label:'🏆 <strong>PASSOU DO MODO PRO</strong>',goal:1,pro:true,bonus:()=>{},rew:'Lenda absoluta!',icon:'🏆',desc:'Zerou o desafio mais difícil do jogo, sem upgrades e contra o tempo!'},
+  {id:'ms_pro3',label:'🔥 <strong>PRO 3 VEZES</strong>',goal:3,proWins:true,bonus:()=>{globalMult+=10;},rew:'Mult +10',icon:'🔥',desc:'Passou do Modo PRO 3 vezes!'},
 ];
 const dMS=new Set();
 
@@ -2267,6 +2309,14 @@ function doClick(ev){
   const em=['👆','✊','🤜','⚡','👊','🫳','☝️','🖐️','🤙'];
   document.getElementById('bE').textContent=em[totalClicks%em.length];
   updateUI();checkMS();checkPrestige();
+  if(chaosActive&&owned.has('ch13'))moveBigBtnRandom();
+}
+function moveBigBtnRandom(){
+  const btn=document.querySelector('.bigbtn');if(!btn)return;
+  const pad=70;
+  const x=pad+Math.random()*(window.innerWidth-pad*2-btn.offsetWidth);
+  const y=pad+Math.random()*(window.innerHeight-pad*2-btn.offsetHeight-80);
+  btn.style.position='fixed';btn.style.left=x+'px';btn.style.top=y+'px';btn.style.zIndex=600;
 }
 function fx(ev,t,color,x,y){
   const el=document.createElement('div');el.className='cfx';
@@ -2548,15 +2598,20 @@ function triggerMarcoEffect(m){
 const DAILY_MISSIONS_LIST=[
   {id:'d_clicks',label:'👆 Dar 50 cliques',goal:50,type:'clicks',rew:()=>{score+=5000;totalEarned+=5000;},rewLabel:'+5K pts'},
   {id:'d_clicks2',label:'👆 Dar 200 cliques',goal:200,type:'clicks',rew:()=>{score+=25000;totalEarned+=25000;},rewLabel:'+25K pts'},
+  {id:'d_clicks3',label:'👆 Dar 1000 cliques',goal:1000,type:'clicks',rew:()=>{clickPower+=20;},rewLabel:'+20/clique'},
   {id:'d_score',label:'💰 Ganhar 10K pontos',goal:10000,type:'score_earned',rew:()=>{globalMult+=1;},rewLabel:'Mult +1'},
   {id:'d_score2',label:'💰 Ganhar 1M pontos',goal:1000000,type:'score_earned',rew:()=>{globalMult+=5;},rewLabel:'Mult +5'},
+  {id:'d_score3',label:'💰 Ganhar 100M pontos',goal:100000000,type:'score_earned',rew:()=>{globalMult+=15;},rewLabel:'Mult +15'},
   {id:'d_buy',label:'🛒 Comprar 3 upgrades',goal:3,type:'buys',rew:()=>{score+=50000;totalEarned+=50000;},rewLabel:'+50K pts'},
   {id:'d_buy2',label:'🛒 Comprar 10 upgrades',goal:10,type:'buys',rew:()=>{clickPower*=2;},rewLabel:'Click ×2'},
   {id:'d_combo',label:'🔥 Fazer combo x20',goal:20,type:'combo',rew:()=>{score+=10000;totalEarned+=10000;},rewLabel:'+10K pts'},
+  {id:'d_combo2',label:'🌪️ Fazer combo x40',goal:40,type:'combo',rew:()=>{clickPower+=80;},rewLabel:'+80/clique'},
   {id:'d_prestige',label:'⭐ Prestigiar 1 vez',goal:1,type:'prestige',rew:()=>{prestigeStars+=3;},rewLabel:'+3⭐'},
 ];
 
 let dailyState=JSON.parse(localStorage.getItem('cmDaily')||'null');
+let totalDailyDone=parseInt(localStorage.getItem('cmTotalDailyDone')||'0',10);
+let dailyPerfectEver=localStorage.getItem('cmDailyPerfect')==='1';
 let dailyProgress={};
 let dailyBuys=0;
 let dailyScoreEarned=0;
@@ -2594,11 +2649,16 @@ function checkDaily(){
     else if(m.type==='prestige')val=prestigeCount-(dailyProgress[m.id+'_start']||0);
     if(val>=m.goal){
       dailyState.done.push(m.id);
+      totalDailyDone++;localStorage.setItem('cmTotalDailyDone',String(totalDailyDone));
       localStorage.setItem('cmDaily',JSON.stringify(dailyState));
       m.rew();updateUI();
       sfx('conquest');admConfetti();
       toast('📅 MISSÃO DIÁRIA: '+m.label+' — '+m.rewLabel,'rainbow');
       renderDailyList();
+      if(dailyState.done.length>=getDailyMissions().length && !dailyPerfectEver){
+        dailyPerfectEver=true;localStorage.setItem('cmDailyPerfect','1');
+      }
+      checkMS();
     }
   });
 }
@@ -2645,6 +2705,76 @@ function startDailyTimer(){
     if(timerEl)timerEl.textContent=`⏰ Renova em ${h}h ${min}m ${sec}s`;
   }
   update();setInterval(update,1000);
+}
+
+// ══════════════════════════════════════════════════════
+// 🏆 MODO PRO — desafio difícil e separado do jogo normal
+// Nesse modo você clica do ZERO: sem upgrades, sem multiplicador,
+// sem combo — só +1 por clique mesmo, contra um cronômetro.
+// Passar é difícil de propósito; é o "hardcore mode" do jogo.
+// ══════════════════════════════════════════════════════
+const PRO_GOAL=50000;
+const PRO_TIME=180; // 3 minutos
+let proActive=false,proScore=0,proTimeLeft=0,proIv=null;
+let proWon=localStorage.getItem('cmProWon')==='1';
+let proWinsCount=parseInt(localStorage.getItem('cmProWins')||'0',10);
+
+function startProMode(){
+  if(proActive)return;
+  proActive=true;proScore=0;proTimeLeft=PRO_TIME;
+  const sb=document.getElementById('proStartBtn');if(sb)sb.style.display='none';
+  const cb=document.getElementById('proClickBtn');if(cb)cb.style.display='block';
+  const r=document.getElementById('proResult');if(r)r.style.display='none';
+  sfx('chaos');toast('🏆 MODO PRO INICIADO! Sem upgrades, só no talento! 😤','red');
+  updateProUI();
+  clearInterval(proIv);
+  proIv=setInterval(()=>{
+    proTimeLeft--;
+    updateProUI();
+    if(proTimeLeft<=0){clearInterval(proIv);proIv=null;endProMode(false);}
+  },1000);
+}
+function proClick(ev){
+  if(!proActive)return;
+  proScore++; // propositalmente sem clickPower, sem globalMult, sem combo
+  sfx('click');
+  if(ev)fx(ev,'+1','#ff8800',ev.clientX,ev.clientY);
+  updateProUI();
+  if(proScore>=PRO_GOAL){clearInterval(proIv);proIv=null;endProMode(true);}
+}
+function endProMode(won){
+  proActive=false;
+  const cb=document.getElementById('proClickBtn');if(cb)cb.style.display='none';
+  const sb=document.getElementById('proStartBtn');if(sb){sb.style.display='block';sb.textContent='🔁 TENTAR DE NOVO';}
+  const r=document.getElementById('proResult');
+  if(won){
+    proWinsCount++;localStorage.setItem('cmProWins',String(proWinsCount));
+    sfx('conquest');admConfetti();
+    if(!proWon){
+      proWon=true;localStorage.setItem('cmProWon','1');
+      globalMult*=1.5;prestigeStars+=10;
+      if(r){r.style.display='block';r.style.color='#00ff88';r.innerHTML='🏆 VOCÊ PASSOU DO MODO PRO!!!<br><span style="font-size:.5rem;color:#88ffcc;">Recompensa única: +10⭐ e Mult ×1.5 PERMANENTE!</span>';}
+      toast('🏆 PRIMEIRA VEZ NO MODO PRO! +10⭐ e Mult ×1.5 permanente!','rainbow');
+    } else {
+      score+=100000;totalEarned+=100000;
+      if(r){r.style.display='block';r.style.color='#00ff88';r.innerHTML='🏆 PASSOU DE NOVO!!<br><span style="font-size:.5rem;color:#88ffcc;">+100.000 pts de bônus</span>';}
+      toast('🏆 Passou do Modo PRO de novo! +100K pts!','gold');
+    }
+    updateUI();checkMS();checkPrestige();
+  } else {
+    sfx('error');
+    if(r){r.style.display='block';r.style.color='#ff4444';r.innerHTML='💀 TEMPO ESGOTADO!<br><span style="font-size:.5rem;color:#ff8888;">Chegou em '+fmt(proScore)+' / '+fmt(PRO_GOAL)+'. Tenta de novo!</span>';}
+    toast('💀 Tempo esgotado no Modo PRO! Tenta de novo!','red');
+  }
+  updateProUI();
+}
+function updateProUI(){
+  const t=document.getElementById('proTimer');
+  if(t)t.textContent=proActive?(Math.floor(Math.max(0,proTimeLeft)/60)+'m '+(Math.max(0,proTimeLeft)%60)+'s'):(PRO_TIME/60)+'m 0s';
+  const s=document.getElementById('proScoreDisp');if(s)s.textContent=fmt(proScore)+' / '+fmt(PRO_GOAL);
+  const bar=document.getElementById('proBar');if(bar)bar.style.width=Math.min(100,proScore/PRO_GOAL*100)+'%';
+  const badge=document.getElementById('proWonBadge');if(badge)badge.style.display=proWon?'block':'none';
+  const winsEl=document.getElementById('proWinsCount');if(winsEl)winsEl.textContent=proWinsCount;
 }
 
 // Hook into buy to track daily buys
@@ -2730,6 +2860,11 @@ function checkMS(){
     else if(m.ranked) val=currentRankId;
     else if(m.skin)   val=skinsBought;
     else if(m.chaosms)val=chaosActivations;
+    else if(m.chaosUpg)val=[...owned].filter(id=>id.startsWith('ch')).length;
+    else if(m.dailyDone)val=totalDailyDone;
+    else if(m.dailyPerfect)val=dailyPerfectEver?1:0;
+    else if(m.pro)    val=proWon?1:0;
+    else if(m.proWins)val=proWinsCount;
     else              val=score;
     if(val>=m.goal){
       dMS.add(m.id);m.bonus();sfx('milestone');
@@ -2823,6 +2958,11 @@ function rMS(){
     else if(m.prs)val=prestigeCount;else if(m.combo)val=maxComboEver;
     else if(m.ranked)val=currentRankId;else if(m.skin)val=skinsBought;
     else if(m.chaosms)val=chaosActivations;
+    else if(m.chaosUpg)val=[...owned].filter(id=>id.startsWith('ch')).length;
+    else if(m.dailyDone)val=totalDailyDone;
+    else if(m.dailyPerfect)val=dailyPerfectEver?1:0;
+    else if(m.pro)val=proWon?1:0;
+    else if(m.proWins)val=proWinsCount;
     else if(m.sug||m.mod||m.night||m.secret||m.jojo)val=done?1:0;
     else val=score;
     const pct=m.first?100:Math.min(100,Math.floor(val/m.goal*100));
@@ -2843,6 +2983,11 @@ function rMSbars(){
     else if(m.prs)val=prestigeCount;else if(m.combo)val=maxComboEver;
     else if(m.ranked)val=currentRankId;else if(m.skin)val=skinsBought;
     else if(m.chaosms)val=chaosActivations;
+    else if(m.chaosUpg)val=[...owned].filter(id=>id.startsWith('ch')).length;
+    else if(m.dailyDone)val=totalDailyDone;
+    else if(m.dailyPerfect)val=dailyPerfectEver?1:0;
+    else if(m.pro)val=proWon?1:0;
+    else if(m.proWins)val=proWinsCount;
     else if(m.first||m.sug||m.mod||m.night||m.secret||m.jojo)val=0;
     else val=score;
     const pct=Math.min(100,Math.floor(val/m.goal*100));
@@ -3810,6 +3955,13 @@ async function admTopRanking(){
     toast('🏆 Você é o #1 do ranking!!','rainbow');sfx('prestige');
   }catch(e){toast('🏆 Score atualizado! (sem internet p/ salvar)','gold');}
 }
+async function doResetRankingConfirmed(){
+  try{
+    const s=await db.collection('jogadores').get();
+    await commitInChunks(s.docs,(batch,doc)=>batch.delete(doc.ref));
+    toast('🗑️ Ranking resetado!','red');sfx('error');
+  }catch(e){toast('Erro: '+e.message,'red');}
+}
 async function admResetRanking(){
   const c=document.createElement('div');
   c.style.cssText='position:fixed;inset:0;z-index:1100;background:#000000ee;display:flex;align-items:center;justify-content:center;';
@@ -3817,7 +3969,7 @@ async function admResetRanking(){
     <div style="font-family:'Nunito',sans-serif;font-size:.95rem;color:#ff2244;margin-bottom:.4rem;">⚠️ RESETAR RANKING INTEIRO?</div>
     <div style="font-size:.5rem;color:#884444;margin-bottom:.9rem;">Remove TODOS os jogadores. Não tem volta!</div>
     <div style="display:flex;gap:.5rem;">
-      <button onclick="(async()=>{try{const s=await db.collection('jogadores').get();s.forEach(async d=>await db.collection('jogadores').doc(d.id).delete());toast('🗑️ Ranking resetado!','red');sfx('error');}catch(e){toast('Erro: '+e.message,'red');}this.parentElement.parentElement.parentElement.remove();})()"
+      <button onclick="doResetRankingConfirmed();this.parentElement.parentElement.parentElement.remove()"
         style="flex:1;font-family:'Nunito',sans-serif;font-size:.78rem;padding:.4rem;background:linear-gradient(135deg,#660000,#ff2244);color:#fff;border:none;border-radius:10px;cursor:pointer;">SIM</button>
       <button onclick="this.parentElement.parentElement.parentElement.remove()"
         style="flex:1;font-family:'Nunito',sans-serif;font-size:.78rem;padding:.4rem;background:#1a0030;color:#886699;border:2px solid #330055;border-radius:10px;cursor:pointer;">NÃO</button>
@@ -3936,6 +4088,18 @@ async function admGiftPlayer(){
     toast('Erro Firebase: '+e.message+'\n(Precisa de internet)','red');
   }
 }
+// ══ HELPER: commita updates/deletes em lotes de até 450 docs ══
+// O Firestore só aceita no máximo 500 operações por batch. Sem isso,
+// qualquer ação "pra TODOS" trava silenciosamente quando o jogo passa
+// de 500 jogadores cadastrados.
+async function commitInChunks(docs, applyFn, chunkSize=450){
+  for(let i=0;i<docs.length;i+=chunkSize){
+    const slice=docs.slice(i,i+chunkSize);
+    const batch=db.batch();
+    slice.forEach(doc=>applyFn(batch,doc));
+    await batch.commit();
+  }
+}
 async function admGiftAll(){
   const pts=parseFloat(document.getElementById('admGiftPts')?.value)||0;
   const stars=parseInt(document.getElementById('admGiftStars')?.value)||0;
@@ -3947,8 +4111,7 @@ async function admGiftAll(){
   try{
     const snap=await db.collection('jogadores').get();
     if(!snap.empty){
-      const batch=db.batch();
-      snap.forEach(doc=>{
+      await commitInChunks(snap.docs,(batch,doc)=>{
         const d=doc.data();
         batch.update(doc.ref,{
           score:(d.score||0)+pts,
@@ -3956,7 +4119,6 @@ async function admGiftAll(){
           updatedAt:firebase.firestore.FieldValue.serverTimestamp()
         });
       });
-      await batch.commit();
       await db.collection('avisos').doc('global').set({
         msg:'🎁 ADM deu presente pra TODOS!'+(pts?' +'+fmt(pts)+' pts':'')+( stars?' +'+stars+'⭐':''),
         ts:firebase.firestore.FieldValue.serverTimestamp()
@@ -4136,9 +4298,9 @@ async function admGiftGroup(){
 async function admDoubleAll(){admNotify('dobrou os pontos de TODOS! ✖️2');
   try{
     const snap=await db.collection('jogadores').get();
-    const batch=db.batch();
-    snap.forEach(doc=>batch.update(doc.ref,{score:(doc.data().score||0)*2,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}));
-    await batch.commit();
+    await commitInChunks(snap.docs,(batch,doc)=>{
+      batch.update(doc.ref,{score:(doc.data().score||0)*2,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    });
     toast('✖️ Pontos de todos duplicados!','rainbow');sfx('prestige');
   }catch(e){score*=2;totalEarned*=2;updateUI();toast('✖️ Seus pontos duplicados!','gold');}
 }
@@ -5075,14 +5237,24 @@ function openRegOrProfile(){
   }
 }
 
-function checkPassAndOpen(){
+async function checkPassAndOpen(){
   const pass=document.getElementById('passCheckInput')?.value.trim();
   const savedHash=localStorage.getItem('cmPassHash');
   if(!pass){toast('Coloca a senha!','red');return;}
-  if(hashPass(pass)===savedHash){
+  if(loginIsLocked()){toast('⏳ Muitas tentativas erradas. Espera '+loginLockSecondsLeft()+'s...','red');return;}
+  const newHash=await hashPass(pass);
+  const ok = newHash===savedHash || hashPassLegacy(pass)===savedHash;
+  if(ok){
+    registerLoginSuccess();
+    if(savedHash!==newHash){
+      // migra senha antiga (fraca) pra senha nova (forte) de forma transparente
+      localStorage.setItem('cmPassHash',newHash);
+      try{ if(playerId) db.collection('jogadores').doc(playerId).update({passHash:newHash}); }catch(e){}
+    }
     document.getElementById('passOv')?.remove();
     openProfilePanel();
   } else {
+    registerLoginFail();
     const inp=document.getElementById('passCheckInput');
     if(inp){inp.style.borderColor='#ff4444';inp.value='';}
     sfx('error');toast('❌ Senha errada!','red');
@@ -5142,10 +5314,50 @@ function togglePassVis(id,btn){
   btn.textContent=inp.type==='password'?'👁️':'🙈';
 }
 
-function hashPass(s){
-  // simple hash pra não salvar senha em texto puro
+function hashPassLegacy(s){
+  // hash antigo (fraco) — mantido só pra continuar validando contas já cadastradas
   let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}
   return Math.abs(h).toString(36);
+}
+async function hashPass(s){
+  // hash forte (SHA-256 + sal fixo) — bem mais difícil de quebrar que o checksum antigo
+  try{
+    const enc=new TextEncoder().encode('cmJojoSalt_'+s);
+    const buf=await crypto.subtle.digest('SHA-256',enc);
+    const hex=Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    return 'sha256:'+hex;
+  }catch(e){
+    // navegador sem suporte a crypto.subtle (raríssimo) — cai pro hash antigo
+    return hashPassLegacy(s);
+  }
+}
+// trava simples contra tentativas repetidas de senha (anti força-bruta)
+let _loginFails=parseInt(localStorage.getItem('cmLoginFails')||'0',10);
+let _loginLockUntil=parseInt(localStorage.getItem('cmLoginLockUntil')||'0',10);
+function loginIsLocked(){return Date.now()<_loginLockUntil;}
+function loginLockSecondsLeft(){return Math.max(0,Math.ceil((_loginLockUntil-Date.now())/1000));}
+function registerLoginFail(){
+  _loginFails++;
+  if(_loginFails>=5){
+    _loginLockUntil=Date.now()+30000;
+    _loginFails=0;
+    localStorage.setItem('cmLoginLockUntil',String(_loginLockUntil));
+  }
+  localStorage.setItem('cmLoginFails',String(_loginFails));
+}
+function registerLoginSuccess(){
+  _loginFails=0;_loginLockUntil=0;
+  localStorage.setItem('cmLoginFails','0');
+  localStorage.setItem('cmLoginLockUntil','0');
+}
+// trava parecida, só pro teclado de código secreto (ADM) — não impede quem sabe o código,
+// só dificulta tentativa-e-erro repetida
+let _admKbFails=0,_admKbLockUntil=0;
+function admKbLocked(){return Date.now()<_admKbLockUntil;}
+function admKbLockSecondsLeft(){return Math.max(0,Math.ceil((_admKbLockUntil-Date.now())/1000));}
+function admKbRegisterFail(){
+  _admKbFails++;
+  if(_admKbFails>=5){_admKbLockUntil=Date.now()+20000;_admKbFails=0;}
 }
 
 function toggleAvatarPicker(){
@@ -5482,7 +5694,7 @@ async function doRegister(){
 
   playerName=name;
   if(!playerId){playerId='p_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);}
-  const passHash=hashPass(pass);
+  const passHash=await hashPass(pass);
   localStorage.setItem('cmPlayerName',playerName);
   localStorage.setItem('cmPlayerId',playerId);
   localStorage.setItem('cmPassHash',passHash);
@@ -6325,8 +6537,7 @@ function abuseCreateCode(){
 async function abuseNukeRanking(){
   try{
     const snap=await db.collection('jogadores').get();
-    const batch=db.batch();snap.forEach(doc=>batch.delete(doc.ref));
-    await batch.commit();
+    await commitInChunks(snap.docs,(batch,doc)=>batch.delete(doc.ref));
     toast('☢️ RANKING DESTRUÍDO!','red');sfx('error');
   }catch(e){toast('Erro!','red');}
 }
@@ -6888,6 +7099,11 @@ function openAdmKeyboard(){
     if(k==='⌫'){typed=typed.slice(0,-1);}
     else if(k==='ENTRAR'){
       const code=typed.toLowerCase();
+      if(admKbLocked()){
+        const d=document.getElementById('kbDisplay');
+        if(d){d.style.color='#ff4444';d.textContent='⏳ '+admKbLockSecondsLeft()+'s';}
+        sfx('error');typed='';return;
+      }
       if(code==='eutuv3214'){
         document.getElementById('admKbOv').remove();
         openADM3214();
@@ -6895,6 +7111,7 @@ function openAdmKeyboard(){
         document.getElementById('admKbOv').remove();
         SECRET_CODES[code]();
       } else {
+        admKbRegisterFail();
         const d=document.getElementById('kbDisplay');
         if(d){d.style.color='#ff4444';d.textContent='ERRADO! ❌';}
         sfx('error');
@@ -7359,6 +7576,97 @@ getDailyMissions().forEach(m=>{
   const btn=document.getElementById('btnSfxToggle');
   if(btn){btn.textContent=_sfxEnabled?'🔊':'🔇';}
 })();
+
+// ══════════════════════════════════════════════════════
+// 💾 AUTOSAVE LOCAL + PROGRESSO OFFLINE
+// Antes, se a pessoa atualizasse a página sem ter feito login,
+// TODO o progresso era perdido. Agora o jogo salva sozinho no
+// navegador e, ao voltar, ainda dá um bônus pelo tempo que ficou fora
+// (igual jogos clicker famosos tipo Cookie Clicker).
+// ══════════════════════════════════════════════════════
+const LOCAL_SAVE_KEY='cmLocalSaveV1';
+const OFFLINE_CAP_SECONDS=4*3600; // limite de 4h de progresso offline contado
+
+// upgrades que criam um intervalo "vivo" (não são só multiplicador numérico)
+// — esses precisam ser reativados manualmente ao restaurar o save
+const SAFE_REACTIVATE_ON_LOAD={
+  's10':()=>{try{stGhost();}catch(e){}},
+  's11':()=>{try{stClone();}catch(e){}},
+  's12':()=>{try{stArmy();}catch(e){}},
+};
+
+function buildLocalSaveData(){
+  return {
+    score,totalClicks,totalEarned,
+    clickPower,autoPerSec,globalMult,
+    prestigeCount,prestigeStars,
+    maxComboEver,diversaoClicks,skinsBought,
+    owned:Array.from(owned),
+    ownedSkins:Array.from(ownedSkins),
+    dMS:Array.from(dMS),
+    activeSkin,
+    savedAt:Date.now(),
+  };
+}
+function saveLocalGame(){
+  try{ localStorage.setItem(LOCAL_SAVE_KEY,JSON.stringify(buildLocalSaveData())); }catch(e){}
+}
+function showOfflineEarningsModal(earned,elapsedSec,cappedSec){
+  const mins=Math.floor(elapsedSec/60);
+  const horas=Math.floor(mins/60);
+  const restMin=mins%60;
+  const tempoTxt=horas>0?`${horas}h ${restMin}min`:`${Math.max(1,mins)} min`;
+  const cappedTxt=cappedSec<elapsedSec?' (contamos só até 4h)':'';
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:900;background:#000000ee;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);';
+  ov.innerHTML=`
+  <div onclick="event.stopPropagation()" style="background:#0a0018;border:4px solid #00ffaa;border-radius:22px;padding:1.6rem;text-align:center;max-width:360px;width:90%;box-shadow:0 0 50px #00ffaa44;animation:gpPop .4s cubic-bezier(.34,1.56,.64,1);">
+    <div style="font-size:2.6rem;margin-bottom:.3rem;">🌙</div>
+    <div style="font-family:'Nunito',sans-serif;font-size:1.05rem;color:#00ffaa;letter-spacing:2px;margin-bottom:.3rem;">BEM-VINDO DE VOLTA!</div>
+    <div style="font-size:.6rem;color:#88ccaa;margin-bottom:.8rem;">Você ficou ${tempoTxt} fora${cappedTxt}</div>
+    <div style="font-family:'Nunito',sans-serif;font-size:1.5rem;color:#ffdd00;text-shadow:0 0 18px #ffdd00;margin-bottom:1rem;">+${fmt(earned)} pts</div>
+    <button onclick="this.closest('div').parentElement.remove()" style="font-family:'Nunito',sans-serif;font-size:.85rem;padding:.5rem 1.6rem;background:linear-gradient(135deg,#004422,#00ff88);color:#000;border:none;border-radius:12px;cursor:pointer;letter-spacing:1px;">🎮 CONTINUAR</button>
+  </div>`;
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+  document.body.appendChild(ov);
+  try{sfx('prestige');}catch(e){}
+}
+function restoreLocalGame(){
+  let raw;
+  try{ raw=localStorage.getItem(LOCAL_SAVE_KEY); }catch(e){ return; }
+  if(!raw)return;
+  let data;
+  try{ data=JSON.parse(raw); }catch(e){ return; }
+  if(!data||typeof data.score!=='number')return;
+
+  score=data.score||0;totalClicks=data.totalClicks||0;totalEarned=data.totalEarned||0;
+  clickPower=data.clickPower||1;autoPerSec=data.autoPerSec||0;globalMult=data.globalMult||1;
+  prestigeCount=data.prestigeCount||0;prestigeStars=data.prestigeStars||0;
+  maxComboEver=data.maxComboEver||0;diversaoClicks=data.diversaoClicks||0;skinsBought=data.skinsBought||0;
+
+  (data.owned||[]).forEach(id=>owned.add(id));
+  (data.ownedSkins||[]).forEach(id=>ownedSkins.add(id));
+  (data.dMS||[]).forEach(id=>dMS.add(id));
+  if(data.activeSkin){ activeSkin=data.activeSkin; try{applySkin(activeSkin);}catch(e){} }
+
+  Object.keys(SAFE_REACTIVATE_ON_LOAD).forEach(id=>{ if(owned.has(id)) SAFE_REACTIVATE_ON_LOAD[id](); });
+
+  const elapsedSec=Math.max(0,Math.floor((Date.now()-(data.savedAt||Date.now()))/1000));
+  if(elapsedSec>30 && autoPerSec>0){
+    const cappedSec=Math.min(elapsedSec,OFFLINE_CAP_SECONDS);
+    const earned=Math.floor(autoPerSec*cappedSec);
+    if(earned>0){
+      score+=earned;totalEarned+=earned;
+      setTimeout(()=>showOfflineEarningsModal(earned,elapsedSec,cappedSec),600);
+    }
+  }
+  try{updateUI();rAll();rMS();checkPrestige();renderSkins();renderChaosGrid();}catch(e){}
+}
+
+setInterval(saveLocalGame,10000);
+window.addEventListener('beforeunload',saveLocalGame);
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden')saveLocalGame(); });
+restoreLocalGame();
 </script>
 </body>
 </html>
